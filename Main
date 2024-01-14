@@ -1,5 +1,6 @@
+import pocketsphinx
 import sphinxbase
-import sphinxad
+#import sphinxad
 import sys
 import time
 import playsound
@@ -7,6 +8,7 @@ import os
 import pyttsx3
 from datetime import datetime
 import random
+import traceback
 
 def speak(text):
     engine = pyttsx3.init()
@@ -22,7 +24,7 @@ def listen():
     config.set_string('-hmm', '/home/tomomom/Desktop/Sprachpacket/sphinx4-5prealpha-src/richtig/HHM/cmusphinx-de-voxforge-5.2.tar.gz')
     config.set_string('-dict', '/home/tomomom/Desktop/Sprachpacket/sphinx4-5prealpha-src/richtig/Dictionary/cmusphinx-voxforge-de.dic')
     config.set_string('-lm', '/home/tomomom/Desktop/Sprachpacket/sphinx4-5prealpha-src/richtig/Language Model/cmusphinx-voxforge-de.lm.bin')
-    decoder = sphinxad.Decoder(config)
+    decoder = pocketsphinx.Decoder(config)
 
     with sphinxbase.LiveSpeech(decoder, samplerate=16000) as speech:
         print("Listening...")
@@ -32,6 +34,8 @@ def listen():
 
 def main():
     engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    engine.setProperty('voice', voices[9].id)  # Change the index to select the desired voice
     engine.say("Hallo, wie kann ich dir helfen?")
     engine.runAndWait()
     while True:
