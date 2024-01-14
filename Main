@@ -1,0 +1,57 @@
+import sphinxbase
+import sphinxad
+import sys
+import time
+import playsound
+import os
+import pyttsx3
+from datetime import datetime
+import random
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+def flip_coin():
+    result = random.choice(["Kopf", "Zahl"])
+    speak(f"Das Ergebnis ist: {result}")
+
+def listen():
+    config = sphinxbase.Config()
+    config.set_string('-hmm', '/home/tomomom/Desktop/Sprachpacket/sphinx4-5prealpha-src/richtig/HHM/cmusphinx-de-voxforge-5.2.tar.gz')
+    config.set_string('-dict', '/home/tomomom/Desktop/Sprachpacket/sphinx4-5prealpha-src/richtig/Dictionary/cmusphinx-voxforge-de.dic')
+    config.set_string('-lm', '/home/tomomom/Desktop/Sprachpacket/sphinx4-5prealpha-src/richtig/Language Model/cmusphinx-voxforge-de.lm.bin')
+    decoder = sphinxad.Decoder(config)
+
+    with sphinxbase.LiveSpeech(decoder, samplerate=16000) as speech:
+        print("Listening...")
+        for phrase in speech:
+            if phrase.get_decoded_prob() > 0:
+                return phrase.get_hyp().split()[0]
+
+def main():
+    engine = pyttsx3.init()
+    engine.say("Hallo, wie kann ich dir helfen?")
+    engine.runAndWait()
+    while True:
+        try:
+            user_input = listen().lower()
+            if user_input:
+                if user_input == "stop":
+                    engine.say("Auf Wiedersehen!")
+                    engine.runAndWait()
+                    break
+                elif user_input == "hey bob":
+                    speak(f"Uhrzeit: {datetime.now().strftime('%H:%M')}")
+                elif user_input == "flip a coin":
+                    flip_coin()
+                else:
+                    # Add your code here to handle the recognized text
+                    speak(f"Du hast {user_input} gesagt.")
+        except Exception as e:
+            print(e)
+            speak("Es ist ein Fehler aufgetreten. Bitte versuche es erneut.")
+
+if __name__ == "__main__":
+    main()
